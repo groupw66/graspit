@@ -21,7 +21,7 @@ LIBS	+= -lqhull
 LIBS	+= -lSoQt -lCoin
 
 #add utility libraries
-LIBS += -lGL -lpthread
+LIBS += -lGL -lpthread -ldl
 
 MOC_DIR = .moc
 OBJECTS_DIR = .obj
