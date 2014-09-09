@@ -84,7 +84,7 @@ int main(int argc, char **argv)
   //external programs, such as Matlab.
   //On some machines, the Q3Socket segfaults at exit, so this is commented out by
   //default
-  //GraspItServer server(4765);
+  GraspItServer server(4765);
  
   app.setMainWidget(gui.getMainWindow()->mWindow);
   QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
