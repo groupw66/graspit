@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with GraspIt!.  If not, see <http://www.gnu.org/licenses/>.
 //
-// Author(s): Andrew T. Miller 
+// Author(s): Andrew T. Miller
 //
 // $Id: graspitServer.cpp,v 1.7 2009/03/25 22:10:04 cmatei Exp $
 //
 //######################################################################
 
-/*! \file 
+/*! \file
   \brief Implements the application's TCP server.
  */
 
@@ -79,16 +79,16 @@ ClientSocket::readBodyIndList(std::vector<Body *> &bodyVec)
     os << world->getNumBodies() << endl;
     return SUCCESS;
   }
-  
+
   numBodies = (*strPtr).toInt(&ok);
   if (!ok) return FAILURE;
   strPtr++;
-  
+
   for (i=0;i<numBodies;i++) {
     if (strPtr == lineStrList.end()) return FAILURE;
     bodNum = (*strPtr).toInt(&ok);
     if (!ok) return FAILURE;
-    
+
     if (bodNum>=0 && bodNum<world->getNumBodies()) {
       bodyVec.push_back(world->getBody(bodNum));
       if (world->getBody(bodNum)==NULL) {
@@ -137,16 +137,16 @@ ClientSocket::readRobotIndList(std::vector<Robot *> &robVec)
     os << world->getNumRobots() << endl;
     return SUCCESS;
   }
-  
+
   numRobots = (*strPtr).toInt(&ok);
   if (!ok) return FAILURE;
   strPtr++;
-  
+
   for (i=0;i<numRobots;i++) {
     if (strPtr == lineStrList.end()) return FAILURE;
     robNum = (*strPtr).toInt(&ok);
     if (!ok) return FAILURE;
-    
+
     if (robNum>=0 && robNum<world->getNumRobots()) {
       robVec.push_back(world->getRobot(robNum));
       if (world->getRobot(robNum)==NULL) {
@@ -192,7 +192,7 @@ ClientSocket::readClient()
 #ifdef GRASPITDBG
     std::cout <<"Command parser line: "<<line << std::endl;
 #endif
-    
+
     if (*strPtr == "getContacts") {
       strPtr++; if (strPtr == lineStrList.end()) continue;
       numData = (*strPtr).toInt(&ok); strPtr++;
@@ -207,7 +207,7 @@ ClientSocket::readClient()
       for (i=0;i<numBodies;i++)
         sendContacts(bodyVec[i],numData);
     }
-    
+
     else if (*strPtr == "getAverageContacts") {
       strPtr++;
       if (readBodyIndList(bodyVec)) continue;
@@ -215,7 +215,7 @@ ClientSocket::readClient()
       for (i=0;i<numBodies;i++)
 	sendAverageContacts(bodyVec[i]);
     }
-    
+
     else if (*strPtr == "getBodyName") {
       strPtr++;
       if (readBodyIndList(bodyVec)) continue;
@@ -223,7 +223,7 @@ ClientSocket::readClient()
       for (i=0;i<numBodies;i++)
 	sendBodyName(bodyVec[i]);
     }
-    
+
     else if (*strPtr == "getRobotName") {
       strPtr++;
       if (readRobotIndList(robVec)) continue;
@@ -231,7 +231,7 @@ ClientSocket::readClient()
       for (i=0;i<numRobots;i++)
 	sendRobotName(robVec[i]);
     }
-    
+
     else if (*strPtr == "getDOFVals") {
       strPtr++;
       if (readRobotIndList(robVec)) continue;
@@ -239,15 +239,15 @@ ClientSocket::readClient()
       for (i=0;i<numRobots;i++)
 	sendDOFVals(robVec[i]);
     }
-    
+
     else if (*strPtr == "moveDOFs") {
       strPtr++;
       readDOFVals();
     }
-    
+
     else if (*strPtr == "render")
       graspItGUI->getIVmgr()->getViewer()->render();
-    
+
     else if (*strPtr == "setDOFForces") {
       strPtr++;
       if (readRobotIndList(robVec)) continue;
@@ -257,7 +257,7 @@ ClientSocket::readClient()
     }
     else if (*strPtr == "moveToContacts")
       graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->approachToContact(30, true);
- 
+
     else if ((*strPtr) == "moveDynamicBodies") {
       strPtr++;
       if (strPtr == lineStrList.end()) ok = FALSE;
@@ -269,7 +269,7 @@ ClientSocket::readClient()
       else
 	moveDynamicBodies(time);
     }
-    
+
     else if (*strPtr == "computeNewVelocities") {
 
 #ifdef GRASPITDBG
@@ -285,7 +285,15 @@ ClientSocket::readClient()
 #endif
       computeNewVelocities(time);
     }
-    
+    else if (*strPtr == "autoGrasp"){
+		  if (!graspItGUI->getIVmgr()->getWorld()->dynamicsAreOn()) {
+		    graspItGUI->getIVmgr()->getWorld()->turnOnDynamics();
+		    //graspItGUI->dynamicsPlayAction->setText("Pause Simulation");
+		    //clearContactsList();
+		  }
+			graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->autoGrasp(true);
+		}
+
   }
 }
 
@@ -381,7 +389,7 @@ ClientSocket::sendContacts(Body *bod,int numData)
 
     os << wrench[0]<<" "<<wrench[1]<<" "<<wrench[2]<<" "<<wrench[3]<<" "<<
       wrench[4]<<" "<<wrench[5]<<"\n";
-	if (numData > 1) 
+	if (numData > 1)
 	  os << loc[0] << " "<< loc[1] << " " << loc[2]<<"\n";
 	if (numData > 2)
 	  os << err << "\n";
@@ -520,7 +528,7 @@ ClientSocket::readDOFForces(Robot *rob)
   int numDOF,i;
 
   if (strPtr == lineStrList.end()) return FAILURE;
- 
+
   numDOF=(*strPtr).toInt(&ok);
   if (!ok) return FAILURE;
   strPtr++;
@@ -535,31 +543,31 @@ ClientSocket::readDOFForces(Robot *rob)
 #endif
     return FAILURE;
   }
-  
+
   if (numDOF != rob->getNumDOF()) {
     os <<"Error: robot has " << rob->getNumDOF() <<" DOF."<<endl;
     return FAILURE;
   }
-  
+
   for (i=0;i<rob->getNumDOF();i++) {
     if (strPtr == lineStrList.end()) return FAILURE;
     val = (*strPtr).toDouble(&ok);
     if (!ok) return FAILURE;
     strPtr++;
     rob->getDOF(i)->setForce(val);
-    
+
 #ifdef GRASPITDBG
     std::cout<<val<<" ";
 #endif
   }
-  
+
 #ifdef GRASPITDBG
   std::cout<<std::endl;
 #endif
-  
+
   for (i=0;i<rob->getNumDOF();i++) {
     os << rob->getDOF(i)->getForce() << "\n";
-    
+
 #ifdef GRASPITDBG
     std::cout << "Sending: "<< rob->getDOF(i)->getForce() << "\n";
 #endif
@@ -596,7 +604,7 @@ ClientSocket::moveDynamicBodies(double timeStep)
     graspItGUI->getIVmgr()->getWorld()->moveDynamicBodies(timeStep);
   if (actualTimeStep < 0)
     os << "Error: Timestep failsafe reached.\n";
-  else 
+  else
     os << actualTimeStep << "\n";
 }
 
@@ -622,7 +630,7 @@ ClientSocket::readTorques()
   QString line;
   line = readLine();
   int numDOF = line.toInt();
-  
+
   if (numDOF < 0) {} //unused parameter warning
 }
 */
@@ -632,7 +640,7 @@ ClientSocket::readTorques()
   the number of pending connections the server can have.
 */
 GraspItServer::GraspItServer(Q_UINT16 port, int backlog,
-			     QObject *parent,const char *name) : 
+			     QObject *parent,const char *name) :
   Q3ServerSocket(port,backlog,parent,name)
 {
   if (!ok()) {
@@ -640,7 +648,7 @@ GraspItServer::GraspItServer(Q_UINT16 port, int backlog,
   }
 }
 
-/*! 
+/*!
   Creates a new ClientSocket to handle communication with this client.
 */
 void
