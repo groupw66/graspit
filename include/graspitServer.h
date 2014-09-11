@@ -120,6 +120,7 @@ private:
 
 	// === Added ===
   void enableDynamics();
+  void disableDynamics();
 
 private slots:
   void readClient();

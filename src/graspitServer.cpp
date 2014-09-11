@@ -287,13 +287,19 @@ ClientSocket::readClient()
     }
 
     else if (*strPtr == "autoGrasp"){
-			enableDynamics();
 		  graspItGUI->getMainWindow()->graspAutoGrasp();
 		}
 
     else if (*strPtr == "autoOpen"){
-			enableDynamics();
 		  graspItGUI->getMainWindow()->graspAutoOpen();
+		}
+
+    else if (*strPtr == "enableDynamics"){
+			enableDynamics();
+		}
+
+    else if (*strPtr == "disableDynamics"){
+			disableDynamics();
 		}
 
   }
@@ -303,6 +309,13 @@ inline void ClientSocket::enableDynamics(){
 	if (!graspItGUI->getIVmgr()->getWorld()->dynamicsAreOn()) {
 		graspItGUI->getMainWindow()->toggleDynamics();
 		graspItGUI->getMainWindow()->mUI->dynamicsPlayAction->setOn(true);
+	}
+}
+
+inline void ClientSocket::disableDynamics(){
+	if (graspItGUI->getIVmgr()->getWorld()->dynamicsAreOn()) {
+		graspItGUI->getMainWindow()->toggleDynamics();
+		graspItGUI->getMainWindow()->mUI->dynamicsPlayAction->setOn(false);
 	}
 }
 
