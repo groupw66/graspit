@@ -31,3 +31,4 @@ Makefile*
 /ui/qmake_image_collection.cpp
 
 /octave/main.m
+graspit.geany
