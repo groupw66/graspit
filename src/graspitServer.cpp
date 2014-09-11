@@ -285,16 +285,25 @@ ClientSocket::readClient()
 #endif
       computeNewVelocities(time);
     }
+
     else if (*strPtr == "autoGrasp"){
-			graspItGUI->getMainWindow();
-		  if (!graspItGUI->getIVmgr()->getWorld()->dynamicsAreOn()) {
-		    graspItGUI->getMainWindow()->toggleDynamics();
-		    graspItGUI->getMainWindow()->mUI->dynamicsPlayAction->setOn(true);
-		  }
+			enableDynamics();
 		  graspItGUI->getMainWindow()->graspAutoGrasp();
 		}
 
+    else if (*strPtr == "autoOpen"){
+			enableDynamics();
+		  graspItGUI->getMainWindow()->graspAutoOpen();
+		}
+
   }
+}
+
+inline void ClientSocket::enableDynamics(){
+	if (!graspItGUI->getIVmgr()->getWorld()->dynamicsAreOn()) {
+		graspItGUI->getMainWindow()->toggleDynamics();
+		graspItGUI->getMainWindow()->mUI->dynamicsPlayAction->setOn(true);
+	}
 }
 
 /*!

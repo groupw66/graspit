@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with GraspIt!.  If not, see <http://www.gnu.org/licenses/>.
 //
-// Author(s):  Andrew T. Miller 
+// Author(s):  Andrew T. Miller
 //
 // $Id: graspitServer.h,v 1.3 2009/03/25 22:10:23 cmatei Exp $
 //
 //######################################################################
 
-/*! \file 
+/*! \file
   \brief Defines the GraspItServer and the ClientSocket classes
  */
 
@@ -71,10 +71,10 @@ class Robot;
 class ClientSocket : public Q3Socket
 {
   Q_OBJECT
-    
+
 public:
 
-  /*! 
+  /*!
     Connects the readyRead signal to the readClient slot, and the
     connectionClosed signal to the connectionClosed slot.  Sets the socket
     to use \a sock .
@@ -86,14 +86,14 @@ public:
       connect( this, SIGNAL(connectionClosed()), SLOT(connectionClosed()) );
       setSocket( sock );
     }
-  
+
   ~ClientSocket();
-  
+
 private:
 
   //! The current line of text read from the socket
   QString line;
-  
+
   //! The list of strings after splitting the line at each space character
   QStringList lineStrList;
 
@@ -116,17 +116,20 @@ private:
 
   // not finished yet:
   // void readTorques();
-  // void moveBody(Body* bod); 
+  // void moveBody(Body* bod);
+
+	// === Added ===
+  void enableDynamics();
 
 private slots:
   void readClient();
 
-/*! Deletes this instance of ClientSocket */ 
+/*! Deletes this instance of ClientSocket */
   void connectionClosed() { delete this;}
 
 };
 
-//! TCP server that listens for connections and spawns new ClientSockets 
+//! TCP server that listens for connections and spawns new ClientSockets
 /*!
   The server is a subclass of the QT QServerSocket and listens on a particular
   port and if a connection is requested, it creates a new ClientSocket, which
