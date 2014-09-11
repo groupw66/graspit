@@ -36,7 +36,7 @@
 #include "robot.h"
 #include "grasp.h"
 #include "contact.h"
-
+#include "mainWindow.h"
 /*!
   Stub destructor.
 */
@@ -286,12 +286,12 @@ ClientSocket::readClient()
       computeNewVelocities(time);
     }
     else if (*strPtr == "autoGrasp"){
+			graspItGUI->getMainWindow();
 		  if (!graspItGUI->getIVmgr()->getWorld()->dynamicsAreOn()) {
-		    graspItGUI->getIVmgr()->getWorld()->turnOnDynamics();
-		    //graspItGUI->dynamicsPlayAction->setText("Pause Simulation");
-		    //clearContactsList();
+		    graspItGUI->getMainWindow()->toggleDynamics();
+		    graspItGUI->getMainWindow()->mUI->dynamicsPlayAction->setOn(true);
 		  }
-			graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->autoGrasp(true);
+		  graspItGUI->getMainWindow()->graspAutoGrasp();
 		}
 
   }
@@ -660,5 +660,3 @@ GraspItServer::newConnection(int socket)
   std::cout << "new connection" << std::endl;
 #endif
 }
-
-
