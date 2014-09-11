@@ -31,7 +31,7 @@ void mexFunction(int nlhs,       mxArray *plhs[],
   if (sockd < 0)
     mexErrMsgTxt("Could not connect");
 
-  Writeline(sockd,"enableDynamics\n",10);
+  Writeline(sockd,"enableDynamics\n",15);
 
   CloseConnection(sockd);
   return;
