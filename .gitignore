@@ -29,3 +29,5 @@ Makefile*
 
 /bin
 /ui/qmake_image_collection.cpp
+
+/octave/main.m
