@@ -124,6 +124,8 @@ private:
 	void disableDynamics();
 	void sendRobotTransform(Robot* rob);
 	int readRobotTransform(Robot* rob);
+	void sendBodyTransform(Body* bod);
+	int readBodyTransform(Body* bod);
 	// === END Added ===
 
 private slots:

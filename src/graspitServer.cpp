@@ -289,6 +289,7 @@ ClientSocket::readClient()
 		
 		
 		// === BEGIN Added ===
+		
     else if (*strPtr == "autoGrasp"){
 		  graspItGUI->getMainWindow()->graspAutoGrasp();
 		}
@@ -319,6 +320,22 @@ ClientSocket::readClient()
       numRobots = robVec.size();
       for (i=0;i<numRobots;i++)
 				if (readRobotTransform(robVec[i])==FAILURE) continue;
+		}
+		
+		else if (*strPtr == "getObjectTransform"){
+      strPtr++;
+      if (readBodyIndList(bodyVec)) continue;
+      numBodies = bodyVec.size();
+      for (i=0;i<numBodies;i++)
+				sendBodyTransform(bodyVec[i]);
+		}
+		
+		else if (*strPtr == "setObjectTransform"){
+      strPtr++;
+      if (readBodyIndList(bodyVec)) continue;
+      numBodies = bodyVec.size();
+      for (i=0;i<numBodies;i++)
+				if (readBodyTransform(bodyVec[i])==FAILURE) continue;
 		}
 
   }
@@ -401,6 +418,71 @@ inline int ClientSocket::readRobotTransform(Robot* rob){
 //  }
   return SUCCESS;
 }
+
+inline void ClientSocket::sendBodyTransform(Body* bod){
+  QTextStream os(this);
+	const transf transform=bod->getTran();
+	const Quaternion rotation=transform.rotation();
+	const vec3 translation=transform.translation();
+	
+  std::cout << "sending " << transform << "\n";
+  os << rotation.w << " " << rotation.x << " " << rotation.y << " " << rotation.z << " ";
+	os << translation[0] << " " << translation[1] << " " << translation[2] << "\n";
+}
+
+inline int ClientSocket::readBodyTransform(Body* bod){
+  double val;
+  bool ok;
+	// QTextStream is(this);
+  QTextStream os(this);
+  int numDOF,i;
+	
+  if (strPtr == lineStrList.end()) return FAILURE;
+	
+	double rot[4],trans[3];
+	
+	// read rotation (in quaternion)
+	for (i=0;i<4;i++) {
+    if (strPtr == lineStrList.end()) return FAILURE;
+    rot[i] = (*strPtr).toDouble(&ok);
+    if (!ok) return FAILURE;
+    strPtr++;
+		
+#ifdef GRASPITDBG
+    std::cout<<val<<" ";
+#endif
+  }
+	
+	// read translation
+	for (i=0;i<3;i++) {
+    if (strPtr == lineStrList.end()) return FAILURE;
+    trans[i] = (*strPtr).toDouble(&ok);
+    if (!ok) return FAILURE;
+    strPtr++;
+		
+#ifdef GRASPITDBG
+    std::cout<<val<<" ";
+#endif
+  }
+	
+	// set body pose
+	bod->setTran(transf(Quaternion(rot[0],rot[1],rot[2],rot[3]), vec3(trans)));
+	
+#ifdef GRASPITDBG
+  std::cout<<std::endl;
+#endif
+	
+	// send nothing back
+	//  for (i=0;i<bod->getNumDOF();i++) {
+	//    os << bod->getDOF(i)->getForce() << "\n";
+	//
+	//#ifdef GRASPITDBG
+	//    std::cout << "Sending: "<< bod->getDOF(i)->getForce() << "\n";
+	//#endif
+	//  }
+  return SUCCESS;
+}
+
 // === END Added ===
 
 
