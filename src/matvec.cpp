@@ -37,6 +37,14 @@
 
 //#define GCC22
 
+// BEGIN for Mac OS X
+//#ifndef WIN32
+//#ifndef GCC22
+//#include <bits/ios_base.h>
+//#endif
+//#endif
+// END for Mac OS X
+
 #define BADCONFIG                                     \
 {                                                     \
   pr_error("not a valid configuration file!");        \

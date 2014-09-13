@@ -5,7 +5,7 @@ LIBS += $$ADDITIONAL_LINK_FLAGS
 # ---------------------- Blas and Lapack ----------------------------------
 
 LIBS += -lblas -llapack 
-LIBS += -ltatlas
+#LIBS += -ltatlas
 
 HEADERS += include/lapack_wrappers.h
 
@@ -14,7 +14,11 @@ HEADERS += include/lapack_wrappers.h
 
 #add qhull include dir
 INCLUDEPATH += /usr/include/qhull
-INCLUDEPATH += /opt/local/include/libqhull
+
+# BEGIN for Mac OS X
+#INCLUDEPATH += /opt/local/include/libqhull
+#INCLUDEPATH += /usr/include/c++/4.2.1
+# END for Mac OS X
 
 #add qhull libraries
 LIBS	+= -lqhull 
