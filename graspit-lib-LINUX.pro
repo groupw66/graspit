@@ -5,6 +5,7 @@ LIBS += $$ADDITIONAL_LINK_FLAGS
 # ---------------------- Blas and Lapack ----------------------------------
 
 LIBS += -lblas -llapack 
+LIBS += -ltatlas
 
 HEADERS += include/lapack_wrappers.h
 
