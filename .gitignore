@@ -32,7 +32,3 @@ Makefile*
 
 /octave/main.m
 graspit.geany
-
-# Temporary ignore by Mac OS X
-graspit-lib-LINUX.pro
-/src/matvec.cpp
