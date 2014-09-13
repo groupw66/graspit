@@ -123,7 +123,7 @@ private:
 	void enableDynamics();
 	void disableDynamics();
 	void sendRobotTransform(Robot* rob);
-	void setRobotTransform(const transf &transform);
+	int readRobotTransform(Robot* rob);
 	// === END Added ===
 
 private slots:
