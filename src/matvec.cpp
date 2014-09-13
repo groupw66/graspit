@@ -428,7 +428,7 @@ operator<<(std::ostream &os, const vec3 &v)
   int oldFlags = os.setf(std::ios_base::showpos);
 #else
 #ifdef GCC22
- int oldFlags = os.setf(ios::showpos);
+ int oldFlags = os.setf(std::ios::showpos);
 #else
   std::_Ios_Fmtflags oldFlags = os.setf(std::ios_base::showpos);
 #endif 
@@ -465,7 +465,7 @@ operator<<(std::ostream &os, const position &p)
   int oldFlags = os.setf(std::ios_base::showpos);
 #else
 #ifdef GCC22
- int oldFlags = os.setf(ios::showpos);
+ int oldFlags = os.setf(std::ios::showpos);
 #else
   std::_Ios_Fmtflags oldFlags = os.setf(std::ios_base::showpos);
 #endif 
@@ -500,7 +500,7 @@ operator<<(std::ostream &os, const mat3 &m)
   int oldFlags = os.setf(std::ios_base::showpos);
 #else
 #ifdef GCC22
- int oldFlags = os.setf(ios::showpos);
+ int oldFlags = os.setf(std::ios::showpos);
 #else
   std::_Ios_Fmtflags oldFlags = os.setf(std::ios_base::showpos);
 #endif
@@ -542,7 +542,7 @@ operator<<(std::ostream &os, const Quaternion &q)
   int oldFlags = os.setf(std::ios_base::showpos);
 #else
 #ifdef GCC22
- int oldFlags = os.setf(ios::showpos);
+ int oldFlags = os.setf(std::ios::showpos);
 #else
   std::_Ios_Fmtflags oldFlags = os.setf(std::ios_base::showpos);
 #endif
