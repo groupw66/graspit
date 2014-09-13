@@ -33,6 +33,7 @@
 #include <qstringlist.h>
 #include <iostream>
 #include <vector>
+#include "matvec3D.h"
 
 class Body;
 class Robot;
@@ -118,9 +119,12 @@ private:
   // void readTorques();
   // void moveBody(Body* bod);
 
-	// === Added ===
-  void enableDynamics();
-  void disableDynamics();
+	// === BEGIN Added ===
+	void enableDynamics();
+	void disableDynamics();
+	void sendRobotTransform(Robot* rob);
+	void setRobotTransform(const transf &transform);
+	// === END Added ===
 
 private slots:
   void readClient();

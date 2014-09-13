@@ -286,6 +286,9 @@ ClientSocket::readClient()
       computeNewVelocities(time);
     }
 
+		
+		
+		// === BEGIN Added ===
     else if (*strPtr == "autoGrasp"){
 		  graspItGUI->getMainWindow()->graspAutoGrasp();
 		}
@@ -300,6 +303,18 @@ ClientSocket::readClient()
 
     else if (*strPtr == "disableDynamics"){
 			disableDynamics();
+		}
+		
+		else if (*strPtr == "getRobotTransform"){
+      strPtr++;
+      if (readRobotIndList(robVec)) continue;
+      numRobots = robVec.size();
+      for (i=0;i<numRobots;i++)
+				sendRobotTransform(robVec[i]);
+		}
+		
+		else if (*strPtr == "setRobotTransform"){
+			//			setRobotTransform(const transf &transform);
 		}
 
   }
@@ -318,6 +333,24 @@ inline void ClientSocket::disableDynamics(){
 		graspItGUI->getMainWindow()->mUI->dynamicsPlayAction->setOn(false);
 	}
 }
+
+inline void ClientSocket::sendRobotTransform(Robot* rob){
+  QTextStream os(this);
+	const transf transform=rob->getTran();
+	const Quaternion rotation=transform.rotation();
+	const vec3 translation=transform.translation();
+	
+  std::cout << "sending " << transform << "\n";
+  os << rotation.w << " " << rotation.x << " " << rotation.y << " " << rotation.z << " ";
+	os << translation[0] << " " << translation[1] << " " << translation[2] << "\n";
+}
+
+inline void ClientSocket::setRobotTransform(const transf &transform){
+	
+}
+// === END Added ===
+
+
 
 /*!
   Given a pointer to a body, this examines all the contacts on that body and
