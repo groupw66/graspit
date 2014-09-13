@@ -213,7 +213,7 @@ ClientSocket::readClient()
       if (readBodyIndList(bodyVec)) continue;
       numBodies = bodyVec.size();
       for (i=0;i<numBodies;i++)
-	sendAverageContacts(bodyVec[i]);
+				sendAverageContacts(bodyVec[i]);
     }
 
     else if (*strPtr == "getBodyName") {
@@ -221,7 +221,7 @@ ClientSocket::readClient()
       if (readBodyIndList(bodyVec)) continue;
       numBodies = bodyVec.size();
       for (i=0;i<numBodies;i++)
-	sendBodyName(bodyVec[i]);
+				sendBodyName(bodyVec[i]);
     }
 
     else if (*strPtr == "getRobotName") {
@@ -229,7 +229,7 @@ ClientSocket::readClient()
       if (readRobotIndList(robVec)) continue;
       numRobots = robVec.size();
       for (i=0;i<numRobots;i++)
-	sendRobotName(robVec[i]);
+				sendRobotName(robVec[i]);
     }
 
     else if (*strPtr == "getDOFVals") {
@@ -237,7 +237,7 @@ ClientSocket::readClient()
       if (readRobotIndList(robVec)) continue;
       numRobots = robVec.size();
       for (i=0;i<numRobots;i++)
-	sendDOFVals(robVec[i]);
+				sendDOFVals(robVec[i]);
     }
 
     else if (*strPtr == "moveDOFs") {
@@ -253,7 +253,7 @@ ClientSocket::readClient()
       if (readRobotIndList(robVec)) continue;
       numRobots = robVec.size();
       for (i=0;i<numRobots;i++)
-	if (readDOFForces(robVec[i])==FAILURE) continue;
+				if (readDOFForces(robVec[i])==FAILURE) continue;
     }
     else if (*strPtr == "moveToContacts")
       graspItGUI->getIVmgr()->getWorld()->getCurrentHand()->approachToContact(30, true);
@@ -314,7 +314,11 @@ ClientSocket::readClient()
 		}
 		
 		else if (*strPtr == "setRobotTransform"){
-			//			setRobotTransform(const transf &transform);
+      strPtr++;
+      if (readRobotIndList(robVec)) continue;
+      numRobots = robVec.size();
+      for (i=0;i<numRobots;i++)
+				if (readRobotTransform(robVec[i])==FAILURE) continue;
 		}
 
   }
@@ -345,8 +349,57 @@ inline void ClientSocket::sendRobotTransform(Robot* rob){
 	os << translation[0] << " " << translation[1] << " " << translation[2] << "\n";
 }
 
-inline void ClientSocket::setRobotTransform(const transf &transform){
+inline int ClientSocket::readRobotTransform(Robot* rob){
+  double val;
+  bool ok;
+	// QTextStream is(this);
+  QTextStream os(this);
+  int numDOF,i;
 	
+  if (strPtr == lineStrList.end()) return FAILURE;
+	
+	double rot[4],trans[3];
+
+	// read rotation (in quaternion)
+	for (i=0;i<4;i++) {
+    if (strPtr == lineStrList.end()) return FAILURE;
+    rot[i] = (*strPtr).toDouble(&ok);
+    if (!ok) return FAILURE;
+    strPtr++;
+		
+#ifdef GRASPITDBG
+    std::cout<<val<<" ";
+#endif
+  }
+	
+	// read translation
+	for (i=0;i<3;i++) {
+    if (strPtr == lineStrList.end()) return FAILURE;
+    trans[i] = (*strPtr).toDouble(&ok);
+    if (!ok) return FAILURE;
+    strPtr++;
+		
+#ifdef GRASPITDBG
+    std::cout<<val<<" ";
+#endif
+  }
+
+	// set robot pose
+	rob->setTran(transf(Quaternion(rot[0],rot[1],rot[2],rot[3]), vec3(trans)));
+	
+#ifdef GRASPITDBG
+  std::cout<<std::endl;
+#endif
+	
+	// send nothing back
+//  for (i=0;i<rob->getNumDOF();i++) {
+//    os << rob->getDOF(i)->getForce() << "\n";
+//		
+//#ifdef GRASPITDBG
+//    std::cout << "Sending: "<< rob->getDOF(i)->getForce() << "\n";
+//#endif
+//  }
+  return SUCCESS;
 }
 // === END Added ===
 
