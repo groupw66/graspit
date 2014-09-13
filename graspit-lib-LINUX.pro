@@ -13,6 +13,7 @@ HEADERS += include/lapack_wrappers.h
 
 #add qhull include dir
 INCLUDEPATH += /usr/include/qhull
+INCLUDEPATH += /opt/local/include/libqhull
 
 #add qhull libraries
 LIBS	+= -lqhull 
