@@ -68,7 +68,6 @@ void mexFunction(int nlhs,       mxArray *plhs[],
 
   if (numRobots == 0) {
 	plhs[0] = NULL;
-	plhs[0] = NULL;
   }
   else {
 	if (numRobots > 1){
