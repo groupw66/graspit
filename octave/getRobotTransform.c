@@ -19,13 +19,12 @@ void mexFunction(int nlhs,       mxArray *plhs[],
   char buf[MAXLENGTH];
   char numStr[20];
   int i,j,numRobots;
-  double value;
   double *pvals,*pind;
   int sockd;
   mxArray *vals;
-   
+
   /* Check for proper number of arguments */
-  
+
   if (nrhs > 1) {
     mexErrMsgTxt("getRobotTransform takes at most one input argument.");
   } else if (nlhs > 1) {
@@ -69,42 +68,24 @@ void mexFunction(int nlhs,       mxArray *plhs[],
   else {
     plhs[0] = mxCreateCellArray(1, &numRobots);
 
-    for (i=0;i<numRobots;i++) {
-      Readline(sockd,buf,MAXLENGTH);
-			if (!strncmp(buf,"Error",5)) {
-			mexErrMsgTxt(buf);
-			break;
-			}
-				buf[strlen(buf)-1] = '\0';
-			mxSetCell(plhs[0],i,mxCreateString(buf));
+		if (numRobots > 1){
+			for (i=0;i<nlhs;i++)
+				plhs[i] = mxCreateCellArray(1,&numRobots);
 		}
 
-	if (numRobots > 1){
-	  for (i=0;i<nlhs;i++)
-        plhs[i] = mxCreateCellArray(1,&numRobots);
-    }
-	
-    for (i=0;i<numRobots;i++) {
-	  Readline(sockd,buf,MAXLENGTH);
-	  if (!strncmp(buf,"Error",5)) {
-		mexErrMsgTxt(buf);
-		break;
-	  }
-	  
-	  vals = mxCreateDoubleMatrix(7,1,mxREAL);
-	  pvals = mxGetPr(vals);
-	  
-	  Readline(sockd,buf,MAXLENGTH);
-      for (j=0;j<7;j++) {
-        sscanf(buf,"%lf",&value);
-        pvals[j] = value;
-	  }
-	  if (numRobots == 1) {
-		plhs[0] = vals;
-	  } else {
-	    mxSetCell(plhs[0],i,vals);
-	  }
-	}
+		for (i=0;i<numRobots;i++) {
+
+			vals = mxCreateDoubleMatrix(7,1,mxREAL);
+			pvals = mxGetPr(vals);
+
+			Readline(sockd,buf,MAXLENGTH);
+			sscanf(buf,"%lf%lf%lf%lf%lf%lf%lf",&pvals[0],&pvals[1],&pvals[2],&pvals[3],&pvals[4],&pvals[5],&pvals[6]);
+			if (numRobots == 1) {
+				plhs[0] = vals;
+			} else {
+				mxSetCell(plhs[0],i,vals);
+			}
+		}
   }
 
   CloseConnection(sockd);

@@ -18,14 +18,13 @@ void mexFunction(int nlhs,       mxArray *plhs[],
 {
   char buf[MAXLENGTH];
   char numStr[20];
-  double value;
   double *pvals,*pind;
   int i,j,numRobots,numDOF;
   int sockd;
   mxArray *vals;
 
   /* Check for proper number of arguments */
-  
+
   if (nrhs > 1) {
     mexErrMsgTxt("getDOFVals takes at most one input argument.");
   } else if (nlhs > 1) {
@@ -37,7 +36,7 @@ void mexFunction(int nlhs,       mxArray *plhs[],
 
   if (sockd < 0)
     mexErrMsgTxt("Could not connect");
- 
+
   strcpy(buf,"getDOFVals ");
 
   // if no robots were specified by user, read total number of robots
@@ -74,7 +73,7 @@ void mexFunction(int nlhs,       mxArray *plhs[],
 	  for (i=0;i<nlhs;i++)
         plhs[i] = mxCreateCellArray(1,&numRobots);
     }
-	
+
     for (i=0;i<numRobots;i++) {
 	  Readline(sockd,buf,MAXLENGTH);
 	   if (!strncmp(buf,"Error",5)) {
@@ -94,8 +93,7 @@ void mexFunction(int nlhs,       mxArray *plhs[],
       }
       for (j=0;j<numDOF;j++) {
         Readline(sockd,buf,MAXLENGTH);
-        sscanf(buf,"%lf\n",&value);
-        pvals[j] = value;
+        sscanf(buf,"%lf\n",&pvals[j]);
 	  }
 	  if (numRobots == 1) {
 		plhs[0] = vals;
