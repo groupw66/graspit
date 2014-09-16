@@ -105,6 +105,58 @@ ClientSocket::readBodyIndList(std::vector<Body *> &bodyVec)
   return SUCCESS;
 }
 
+/*!
+  Copy code from ClientSocket::readBodyIndList but read GraspableBody instead of Body
+*/
+int
+ClientSocket::readGBIndList(std::vector<GraspableBody *> &gbVec)
+{
+  QTextStream os(this);
+  int i,numGBodies,gbodNum;
+  bool ok;
+  World *world = graspItGUI->getIVmgr()->getWorld();
+  std::cout << "readGBIndList Line:"<<line.latin1() << std::endl;
+
+  /* if the index list is empty, use every graspableBody and send
+     back the count
+  */
+
+  if (strPtr == lineStrList.end()) return FAILURE;
+
+  if ((*strPtr).startsWith("ALL")) {
+    strPtr++;
+    for (i=0;i<world->getNumGB();i++)
+      gbVec.push_back(world->getGB(i));
+    std::cout << "Sending num gbodies: "<<world->getNumGB()<<std::endl;
+    os << world->getNumGB() << endl;
+    return SUCCESS;
+  }
+
+  numGBodies = (*strPtr).toInt(&ok);
+  if (!ok) return FAILURE;
+  strPtr++;
+
+  for (i=0;i<numGBodies;i++) {
+    if (strPtr == lineStrList.end()) return FAILURE;
+    gbodNum = (*strPtr).toInt(&ok);
+    if (!ok) return FAILURE;
+
+    if (gbodNum>=0 && gbodNum<world->getNumGB()) {
+      gbVec.push_back(world->getGB(gbodNum));
+      if (world->getGB(gbodNum)==NULL) {
+	os << "Error: Cannot find gbody " << gbodNum <<"\n";
+        return FAILURE;
+      }
+    }
+    else {
+      os << "Error: Cannot find gbody " << gbodNum <<"\n";
+      return FAILURE;
+    }
+    strPtr++;
+  }
+  return SUCCESS;
+}
+
 
 /*!
   This reads the next portion of a command line after the command to collect
@@ -175,9 +227,10 @@ ClientSocket::readRobotIndList(std::vector<Robot *> &robVec)
 void
 ClientSocket::readClient()
 {
-  int i,numData,numBodies,numRobots;
+  int i,numData,numBodies,numGBs,numRobots;
   double time;
   std::vector<Body *> bodyVec;
+  std::vector<GraspableBody *> gbVec;
   std::vector<Robot *> robVec;
 
   bool ok;
@@ -286,10 +339,10 @@ ClientSocket::readClient()
       computeNewVelocities(time);
     }
 
-		
-		
+
+
 		// === BEGIN Added ===
-		
+
     else if (*strPtr == "autoGrasp"){
 		  graspItGUI->getMainWindow()->graspAutoGrasp();
 		}
@@ -305,7 +358,7 @@ ClientSocket::readClient()
     else if (*strPtr == "disableDynamics"){
 			disableDynamics();
 		}
-		
+
 		else if (*strPtr == "getRobotTransform"){
       strPtr++;
       if (readRobotIndList(robVec)) continue;
@@ -313,7 +366,7 @@ ClientSocket::readClient()
       for (i=0;i<numRobots;i++)
 				sendRobotTransform(robVec[i]);
 		}
-		
+
 		else if (*strPtr == "setRobotTransform"){
       strPtr++;
       if (readRobotIndList(robVec)) continue;
@@ -321,21 +374,21 @@ ClientSocket::readClient()
       for (i=0;i<numRobots;i++)
 				if (readRobotTransform(robVec[i])==FAILURE) continue;
 		}
-		
+
 		else if (*strPtr == "getObjectTransform"){
       strPtr++;
-      if (readBodyIndList(bodyVec)) continue;
-      numBodies = bodyVec.size();
-      for (i=0;i<numBodies;i++)
-				sendBodyTransform(bodyVec[i]);
+      if (readGBIndList(gbVec)) continue;
+      numGBs = gbVec.size();
+      for (i=0;i<numGBs;i++)
+				sendGBTransform(gbVec[i]);
 		}
-		
+
 		else if (*strPtr == "setObjectTransform"){
       strPtr++;
-      if (readBodyIndList(bodyVec)) continue;
-      numBodies = bodyVec.size();
-      for (i=0;i<numBodies;i++)
-				if (readBodyTransform(bodyVec[i])==FAILURE) continue;
+      if (readGBIndList(gbVec)) continue;
+      numGBs = gbVec.size();
+      for (i=0;i<numGBs;i++)
+				if (readGBTransform(gbVec[i])==FAILURE) continue;
 		}
 
   }
@@ -360,7 +413,7 @@ inline void ClientSocket::sendRobotTransform(Robot* rob){
 	const transf transform=rob->getTran();
 	const Quaternion rotation=transform.rotation();
 	const vec3 translation=transform.translation();
-	
+
   std::cout << "sending " << transform << "\n";
   os << rotation.w << " " << rotation.x << " " << rotation.y << " " << rotation.z << " ";
 	os << translation[0] << " " << translation[1] << " " << translation[2] << "\n";
@@ -372,9 +425,9 @@ inline int ClientSocket::readRobotTransform(Robot* rob){
 	// QTextStream is(this);
   QTextStream os(this);
   int numDOF,i;
-	
+
   if (strPtr == lineStrList.end()) return FAILURE;
-	
+
 	double rot[4],trans[3];
 
 	// read rotation (in quaternion)
@@ -383,19 +436,19 @@ inline int ClientSocket::readRobotTransform(Robot* rob){
     rot[i] = (*strPtr).toDouble(&ok);
     if (!ok) return FAILURE;
     strPtr++;
-		
+
 #ifdef GRASPITDBG
     std::cout<<val<<" ";
 #endif
   }
-	
+
 	// read translation
 	for (i=0;i<3;i++) {
     if (strPtr == lineStrList.end()) return FAILURE;
     trans[i] = (*strPtr).toDouble(&ok);
     if (!ok) return FAILURE;
     strPtr++;
-		
+
 #ifdef GRASPITDBG
     std::cout<<val<<" ";
 #endif
@@ -403,15 +456,15 @@ inline int ClientSocket::readRobotTransform(Robot* rob){
 
 	// set robot pose
 	rob->setTran(transf(Quaternion(rot[0],rot[1],rot[2],rot[3]), vec3(trans)));
-	
+
 #ifdef GRASPITDBG
   std::cout<<std::endl;
 #endif
-	
+
 	// send nothing back
 //  for (i=0;i<rob->getNumDOF();i++) {
 //    os << rob->getDOF(i)->getForce() << "\n";
-//		
+//
 //#ifdef GRASPITDBG
 //    std::cout << "Sending: "<< rob->getDOF(i)->getForce() << "\n";
 //#endif
@@ -419,59 +472,59 @@ inline int ClientSocket::readRobotTransform(Robot* rob){
   return SUCCESS;
 }
 
-inline void ClientSocket::sendBodyTransform(Body* bod){
+inline void ClientSocket::sendGBTransform(GraspableBody* bod){
   QTextStream os(this);
 	const transf transform=bod->getTran();
 	const Quaternion rotation=transform.rotation();
 	const vec3 translation=transform.translation();
-	
+
   std::cout << "sending " << transform << "\n";
   os << rotation.w << " " << rotation.x << " " << rotation.y << " " << rotation.z << " ";
 	os << translation[0] << " " << translation[1] << " " << translation[2] << "\n";
 }
 
-inline int ClientSocket::readBodyTransform(Body* bod){
+inline int ClientSocket::readGBTransform(GraspableBody* bod){
   double val;
   bool ok;
 	// QTextStream is(this);
   QTextStream os(this);
   int numDOF,i;
-	
+
   if (strPtr == lineStrList.end()) return FAILURE;
-	
+
 	double rot[4],trans[3];
-	
+
 	// read rotation (in quaternion)
 	for (i=0;i<4;i++) {
     if (strPtr == lineStrList.end()) return FAILURE;
     rot[i] = (*strPtr).toDouble(&ok);
     if (!ok) return FAILURE;
     strPtr++;
-		
+
 #ifdef GRASPITDBG
     std::cout<<val<<" ";
 #endif
   }
-	
+
 	// read translation
 	for (i=0;i<3;i++) {
     if (strPtr == lineStrList.end()) return FAILURE;
     trans[i] = (*strPtr).toDouble(&ok);
     if (!ok) return FAILURE;
     strPtr++;
-		
+
 #ifdef GRASPITDBG
     std::cout<<val<<" ";
 #endif
   }
-	
+
 	// set body pose
 	bod->setTran(transf(Quaternion(rot[0],rot[1],rot[2],rot[3]), vec3(trans)));
-	
+
 #ifdef GRASPITDBG
   std::cout<<std::endl;
 #endif
-	
+
 	// send nothing back
 	//  for (i=0;i<bod->getNumDOF();i++) {
 	//    os << bod->getDOF(i)->getForce() << "\n";

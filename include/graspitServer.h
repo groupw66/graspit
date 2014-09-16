@@ -36,6 +36,7 @@
 #include "matvec3D.h"
 
 class Body;
+class GraspableBody;
 class Robot;
 
 //! Subclass of QSocket that parses input, implements commands, and writes output
@@ -102,6 +103,7 @@ private:
   QStringList::const_iterator strPtr;
 
   int readBodyIndList(std::vector<Body *> &bodyVec);
+  int readGBIndList(std::vector<GraspableBody *> &gbVec);
   int readRobotIndList(std::vector<Robot *> &robVec);
   void sendContacts(Body *bod,int numData);
   void sendAverageContacts(Body *bod);
@@ -124,8 +126,8 @@ private:
 	void disableDynamics();
 	void sendRobotTransform(Robot* rob);
 	int readRobotTransform(Robot* rob);
-	void sendBodyTransform(Body* bod);
-	int readBodyTransform(Body* bod);
+	void sendGBTransform(GraspableBody* bod);
+	int readGBTransform(GraspableBody* bod);
 	// === END Added ===
 
 private slots:
