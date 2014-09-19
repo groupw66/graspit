@@ -73,7 +73,7 @@ void mexFunction(int nlhs,       mxArray *plhs[],
 		}
 
 		for (i=0;i<numRobots;i++) {
-			if(nlhs==1)
+			if(nlhs<2)
 				vals = mxCreateDoubleMatrix(7,1,mxREAL);
 			else{
 				vals = mxCreateDoubleMatrix(4,1,mxREAL);
@@ -83,7 +83,7 @@ void mexFunction(int nlhs,       mxArray *plhs[],
 			pvals = mxGetPr(vals);
 
 			Readline(sockd,buf,MAXLENGTH);
-			if(nlhs==1){
+			if(nlhs<2){
 				sscanf(buf,"%lf%lf%lf%lf%lf%lf%lf",&pvals[0],&pvals[1],&pvals[2],&pvals[3],&pvals[4],&pvals[5],&pvals[6]);
 				if (numRobots == 1)
 					plhs[0] = vals;
