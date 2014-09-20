@@ -151,7 +151,7 @@ GraspItGUI::processArgs(int argc, char** argv)
     return FAILURE;
   }
 
-  //look for plugins of the form plugin:name in the arguments
+  //look for plugins of the form plugin,name in the arguments
   for (int i=1; i<argc; i++) {
     QString arg(argv[i]);
     if (arg.section(',',0,0)=="plugin") {
